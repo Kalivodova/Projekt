@@ -1,2 +1,3 @@
 # Projekt
-Projekt ke kurzu engeto
+Projekt ke kurzu engeto.
+
