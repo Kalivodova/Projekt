@@ -1,3 +1,4 @@
+-- Vypsání data, země, víkendu a ročního období
 SELECT 
 	cbd.date,
  	country,
