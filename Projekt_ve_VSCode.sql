@@ -65,7 +65,7 @@ WHERE r.year = '2020';
 -- rozdíl doby dožití
 CREATE TABLE tabulka_le_rozdil AS 
 SELECT a.country, a.life_exp_1965 , b.life_exp_2015,
-    round( b.life_exp_2015 - a.life_exp_1965, 2 ) AS life_exp_rozdil
+    round( b.life_exp_2015 - a.life_exp_1965, 2 ) AS life_exp_diff
 FROM (
     SELECT le.country , le.life_expectancy AS life_exp_1965
     FROM life_expectancy le 
