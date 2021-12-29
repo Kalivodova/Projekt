@@ -23,7 +23,7 @@ SELECT
 	tpc.*,
 	c.population,
 	CASE WHEN WEEKDAY(tpc.date) IN (5, 6) THEN 1 ELSE 0 END AS weekend,
--- tabulka seasons nemá všechny záznamy ohledně ročního období. Proto jsem si to vypsala ručně.
+-- tabulka seasons nemá všechny záznamy ohledně ročního období.
 -- s.seasons,
 	CASE WHEN (date BETWEEN '2019-12-21' AND '2020-03-19') OR (date BETWEEN '2020-12-21' AND '2021-03-19') OR (date BETWEEN '2021-12-21' AND '2022-03-19') THEN 0
     WHEN (date BETWEEN '2019-03-20' AND '2019-06-20') OR (date BETWEEN '2020-03-20' AND '2020-06-20') OR (date BETWEEN '2021-03-20' AND '2021-06-20')  OR (date BETWEEN '2022-03-20' AND '2022-06-20') THEN 1
