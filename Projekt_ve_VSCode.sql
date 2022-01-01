@@ -80,15 +80,10 @@ GROUP BY country;
 CREATE TABLE tabulka_le_rozdil AS 
 SELECT a.country, a.life_exp_1965 , b.life_exp_2015,
     round( b.life_exp_2015 - a.life_exp_1965, 2 ) AS life_exp_diff
-FROM (
-    SELECT le.country , le.life_expectancy AS life_exp_1965
-    FROM life_expectancy le 
-    WHERE year = 1965
-    ) a JOIN (
-    SELECT le.country , le.life_expectancy AS life_exp_2015
-    FROM life_expectancy le 
-    WHERE year = 2015
-    ) b
+FROM (SELECT le.country , le.life_expectancy AS life_exp_1965
+    FROM life_expectancy le WHERE year = 1965) a 
+	JOIN (SELECT le.country , le.life_expectancy AS life_exp_2015
+    FROM life_expectancy le WHERE year = 2015) b
     ON a.country = b.country;
 
 CREATE VIEW info_2020 AS
