@@ -17,7 +17,7 @@ LEFT JOIN covid19_tests ct ON cbdcz.country = ct.country AND cbdcz.date = ct.dat
 WHERE confirmed IS NOT NULL
 ORDER BY date, country;
 
--- Vytvoření navazující tabulky s populací, víkendem, sezónou, hustotou zalidnění, průměrným věkem v roce 2018.
+-- Vytvoření navazující tabulky s víkendem, sezónou, průměrným věkem v roce 2018.
 CREATE TABLE tabulka_druha_cast AS
 SELECT 
 	tpc.*,
@@ -96,6 +96,7 @@ FROM tabulka_hdp_popu_gini_morta AS hpgm
 LEFT JOIN countries AS c
 ON hpgm.country = c.country;
 
+-- Sjednocení tabulky kroků 1 a 2.
 CREATE TABLE tabulka_ukol_1 AS
 SELECT 
 	tdc.date,
@@ -130,3 +131,4 @@ LEFT JOIN tabulka_le_rozdil AS tlr
 ON tdc.country = tlr.country
 ORDER BY date, country;
 
+SELECT * FROM tabulka_ukol_1;
