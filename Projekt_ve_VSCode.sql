@@ -1,8 +1,6 @@
 -- Vytvořím si novou tabulku, abych si mohla přejmenovat nestejnorodé země. V tomto případě Českou republiku.
 CREATE VIEW covid19_basic_differences_czech_republic AS 
 SELECT * FROM covid19_basic_differences;
-
--- Sjednotím si název Česká republika.
 UPDATE covid19_basic_differences_czech_republic SET country = 'Czech Republic' WHERE country = 'Czechia';
 
 -- vytvoření tabulky s hodnody data, země, nakažených a testovaných.
