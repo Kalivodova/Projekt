@@ -43,9 +43,9 @@ SELECT
 	(SELECT gini FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS gini_2018,
 	gini AS gini_2019,
 	(SELECT gini FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS gini_2020,
-	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS mortality_2018,
-	mortaliy_under5 AS mortality_2019,
-	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS mortality_2020
+	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS children_mortality_2018,
+	mortaliy_under5 AS children_mortality_2019,
+	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS children_mortality_2020
 FROM economies e
 WHERE year = '2019';
 
@@ -76,18 +76,16 @@ GROUP BY country;
 -- rozdíl doby dožití
 CREATE TABLE tabulka_le_rozdil AS 
 SELECT a.country, a.life_exp_1965 , b.life_exp_2015,
-    round( b.life_exp_2015 - a.life_exp_1965, 2 ) AS life_exp_diff
-FROM (
-    SELECT le.country , le.life_expectancy AS life_exp_1965
+    (b.life_exp_2015 - a.life_exp_1965) AS life_exp_diff
+FROM (SELECT le.country , le.life_expectancy AS life_exp_1965
     FROM life_expectancy le 
-    WHERE year = 1965
-    ) a JOIN (
-    SELECT le.country , le.life_expectancy AS life_exp_2015
+    WHERE year = 1965) a 
+	JOIN (SELECT le.country , le.life_expectancy AS life_exp_2015
     FROM life_expectancy le 
-    WHERE year = 2015
-    ) b
+    WHERE year = 2015) b
     ON a.country = b.country;
 
+-- Hustota zalidnění v roce 2020
 CREATE VIEW info_2020 AS
 SELECT 
 	hpgm.country,	
@@ -110,7 +108,7 @@ SELECT
 	i.population_density_2020,
 	hpgm.HDP_na_hlavu_2020,
 	hpgm.gini_2019,
-	hpgm.mortality_2019,
+	hpgm.children_mortality_2019,
 	tdc.median_age_2018,
 	tn.Christianity,
 	tn.Islam,
@@ -149,7 +147,7 @@ SELECT
 	city, 
 	COUNT(rain) AS nenulove_srazky
 FROM weather 
-WHERE rain > '0.0 mm' AND date >= '2020-01-01' 
+WHERE rain > '0.0 mm' AND date >= '2020-01-01' AND city IS NOT NULL
 GROUP BY date, city;
 
 -- náraz větru
