@@ -32,7 +32,7 @@ LEFT JOIN countries AS c
 ON tpc.country = c.country
 ORDER BY date, country;
 
--- HDP na hlavu a populace 2018, 2019 a 2020, gini a dětská úmrtnost 2018 a 2019 (roky 2020 nejsou uvedena žádná data).
+-- HDP na hlavu a populace 2018, 2019 a 2020, gini a úmrtnost 2018 a 2019 (roky 2020 nejsou uvedena žádná data).
 CREATE TABLE tabulka_HDP_popu_gini_morta AS 
 SELECT 
 	country,
@@ -45,9 +45,9 @@ SELECT
 	(SELECT gini FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS gini_2018,
 	gini AS gini_2019,
 	(SELECT gini FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS gini_2020,
-	(SELECT round(mortaliy_under5, 3) FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS children_mortality_2018,
-	mortaliy_under5 AS children_mortality_2019,
-	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS children_mortality_2020
+	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2018' AND e.country = e2.country) AS mortality_2018,
+	mortaliy_under5 AS mortality_2019,
+	(SELECT mortaliy_under5 FROM economies e2 WHERE year = '2020' AND e.country = e2.country) AS mortality_2020
 FROM economies e
 WHERE year = '2019';
 
@@ -57,7 +57,6 @@ SELECT
 	r.year,
 	r.country,
 	r.religion,
- 	-- (select sum(re.population) FROM religions re WHERE re.year = '2020' and r.country = re.country group by re.country) AS pocet,
  	round(r.population / (SELECT sum(re.population) FROM religions re WHERE re.year = '2020' AND r.country = re.country GROUP BY re.country) * 100, 2) AS procenta
 FROM religions AS r
 WHERE r.year = '2020';
@@ -80,10 +79,15 @@ GROUP BY country;
 CREATE TABLE tabulka_le_rozdil AS 
 SELECT a.country, a.life_exp_1965 , b.life_exp_2015,
     round( b.life_exp_2015 - a.life_exp_1965, 2 ) AS life_exp_diff
-FROM (SELECT le.country , le.life_expectancy AS life_exp_1965
-    FROM life_expectancy le WHERE year = 1965) a 
-	JOIN (SELECT le.country , le.life_expectancy AS life_exp_2015
-    FROM life_expectancy le WHERE year = 2015) b
+FROM (
+    SELECT le.country , le.life_expectancy AS life_exp_1965
+    FROM life_expectancy le 
+    WHERE year = 1965
+    ) a JOIN (
+    SELECT le.country , le.life_expectancy AS life_exp_2015
+    FROM life_expectancy le 
+    WHERE year = 2015
+    ) b
     ON a.country = b.country;
 
 CREATE VIEW info_2020 AS
@@ -96,7 +100,6 @@ FROM tabulka_hdp_popu_gini_morta AS hpgm
 LEFT JOIN countries AS c
 ON hpgm.country = c.country;
 
--- Sjednocení tabulky kroků 1 a 2.
 CREATE TABLE tabulka_ukol_1 AS
 SELECT 
 	tdc.date,
@@ -109,7 +112,7 @@ SELECT
 	i.population_density_2020,
 	hpgm.HDP_na_hlavu_2020,
 	hpgm.gini_2019,
-	hpgm.children_mortality_2019,
+	hpgm.mortality_2019,
 	tdc.median_age_2018,
 	tn.Christianity,
 	tn.Islam,
@@ -131,4 +134,64 @@ LEFT JOIN tabulka_le_rozdil AS tlr
 ON tdc.country = tlr.country
 ORDER BY date, country;
 
-SELECT * FROM tabulka_ukol_1;
+-- průměrná denní teplota
+CREATE VIEW prumerna_teplota AS
+SELECT 
+	date,
+	city,
+	AVG(replace(temp,' °c', '')) AS avg_daily_temp
+FROM weather
+WHERE (time BETWEEN '09:00' AND '18:00') AND date >= '2020-01-01' AND city IS NOT NULL
+GROUP BY city, date;
+
+-- nenulové srážky
+CREATE VIEW nenulove_srazky AS
+SELECT 
+	date, 
+	city, 
+	COUNT(rain) AS nenulove_srazky
+FROM weather 
+WHERE rain > '0.0 mm' AND date >= '2020-01-01' 
+GROUP BY date, city;
+
+-- náraz větru
+CREATE VIEW maximalni_sila_vetru AS
+SELECT 
+	date,
+	city,
+	MAX(gust) AS max_gust
+FROM weather 
+WHERE (time BETWEEN '06:00' AND '21:00') AND date >= '2020-01-01' AND city IS NOT NULL
+GROUP BY city, date;
+
+CREATE TABLE tabulka_pocasi AS
+SELECT 
+	msv.`date`,
+	msv.city,
+ 	c.country,
+	pt.avg_daily_temp,
+	ns.nenulove_srazky AS not_null_rain,
+	(ns.nenulove_srazky * 3) AS not_null_rain_3,
+	msv.max_gust
+FROM maximalni_sila_vetru AS msv
+LEFT JOIN nenulove_srazky AS ns
+ON msv.date = ns.date and msv.city = ns.city
+LEFT JOIN prumerna_teplota AS pt
+ON msv.date = pt.date and msv.city = pt.city
+JOIN countries AS c
+ON msv.city = c.capital_city;
+
+-- Hotový úkol
+CREATE TABLE t_Veronika_Kalivodova_projekt_SQL_final AS
+SELECT 
+	tu.*,
+	tp.avg_daily_temp,
+	tp.not_null_rain,
+	tp.not_null_rain_3,
+	tp.max_gust 
+FROM tabulka_ukol_1 AS tu
+LEFT JOIN tabulka_pocasi AS tp
+ON tu.date = tp.date and tu.country = tp.country
+ORDER BY date, country;
+
+SELECT * FROM t_Veronika_Kalivodova_projekt_SQL_final;
