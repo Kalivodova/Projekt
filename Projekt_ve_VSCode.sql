@@ -130,6 +130,15 @@ LEFT JOIN tabulka_le_rozdil AS tlr
 ON tdc.country = tlr.country
 ORDER BY date, country;
 
+DROP TABLE tabulka_HDP_popu_gini_morta;
+DROP TABLE tabulka_nabozenstvi;
+DROP TABLE tabulka_le_rozdil;
+DROP TABLE tabulka_podil_nabozenstvi;
+DROP TABLE tabulka_prvni_cast;
+DROP TABLE tabulka_druha_cast;
+DROP VIEW info_2020;
+DROP VIEW covid19_basic_differences_czech_republic;
+
 -- průměrná denní teplota
 CREATE VIEW prumerna_teplota AS
 SELECT 
@@ -189,5 +198,11 @@ FROM tabulka_ukol_1 AS tu
 LEFT JOIN tabulka_pocasi AS tp
 ON tu.date = tp.date and tu.country = tp.country
 ORDER BY date, country;
+
+DROP VIEW prumerna_teplota;
+DROP VIEW nenulove_srazky;
+DROP VIEW maximalni_sila_vetru;
+DROP TABLE tabulka_pocasi;
+DROP TABLE tabulka_ukol_1;
 
 SELECT * FROM t_Veronika_Kalivodova_projekt_SQL_final;
